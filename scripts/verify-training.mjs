@@ -36,9 +36,14 @@ for(const g of guides){const all=[...g.examples,{...g.worked,question:g.worked.q
   assert.equal(ex.answer,want,q+' '+ex.stimulus.join(' '))}
 }}
 console.log('Verified '+guideChecks+' guide examples and answer keys.');
-for(let i=0;i<5000;i++){const c=makeFlashCard(['mixed','add','sub'][i%3]);assert(c.a>=10&&c.a<=99&&c.b>=10&&c.b<=99,'two-digit');assert.equal(c.answer,c.op==='+'?c.a+c.b:c.a-c.b);assert(c.answer>0);
- for(const lines of [c.round,c.split]){assert(lines.at(-1).endsWith('= '+c.answer),lines.join(' | '));for(const l of lines){const m=l.match(/(\\d+) ([+−]) (\\d+) = (\\d+)/);assert(m,l);assert.equal(+m[4],m[2]==='+'?+m[1]+ +m[3]:+m[1]-+m[3],l)}}}
-console.log('Verified 5,000 flashcards and every working step.');
+const evalLine=l=>{let n=0;for(const m of l.matchAll(/(\\d+)% of (\\d+) = (\\d+)/g)){assert.equal(+m[1]*+m[2]/100,+m[3],l);n++}for(const m of l.matchAll(/(\\d+) ([+−×÷]) (\\d+) = (\\d+)/g)){const[a,op,b,r]=[+m[1],m[2],+m[3],+m[4]];assert.equal(op==='+'?a+b:op==='−'?a-b:op==='×'?a*b:a/b,r,l);n++}return n};
+const kinds={add:0,sub:0,pct:0},pcts=new Set();
+for(let i=0;i<9000;i++){const c=makeFlashCard(['mixed','add','sub','pct'][i%4]);kinds[c.kind]++;assert(Number.isInteger(c.answer)&&c.answer>0,JSON.stringify(c));
+ if(c.kind==='pct'){const p=parseInt(c.left);pcts.add(p);assert([10,20,25,50,75].includes(p));assert.equal(c.op,'of');assert.equal(c.answer,p*+c.right/100)}
+ else{const a=+c.left,b=+c.right;assert(a>=10&&a<=99&&b>=10&&b<=99,'two-digit');assert.equal(c.answer,c.kind==='add'?a+b:a-b)}
+ assert.equal(c.methods.length,2);for(const m of c.methods){assert(m.lines.at(-1).includes(String(c.answer)),m.title+': '+m.lines.join(' | '));let steps=0;for(const l of m.lines){assert(!/\\d\\.\\d/.test(l),'no decimals: '+l);steps+=evalLine(l)}assert(steps>0||m.title==='Shift the digits',m.title)}}
+assert(kinds.add&&kinds.sub&&kinds.pct);assert.equal(pcts.size,5);
+console.log('Verified 9,000 flashcards (addition, subtraction, percentages) and every working step.');
 console.log('Verified 4,000 procedural questions, unique spatial solutions, balanced blocks, timeouts, double-answer guards, feedback and score calculations.');
 `,
     resolveDir: process.cwd(),

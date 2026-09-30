@@ -11,7 +11,9 @@ const modes: { id: FlashMode; label: string }[] = [
   { id: "mixed", label: "Mixed" },
   { id: "add", label: "Addition" },
   { id: "sub", label: "Subtraction" },
+  { id: "pct", label: "Percentages" },
 ];
+const tags = { add: "ADDITION", sub: "SUBTRACTION", pct: "PERCENTAGES" };
 
 export function Flashcards() {
   const { beep } = useTraining();
@@ -73,15 +75,15 @@ export function Flashcards() {
   const avg = marks.length
     ? marks.reduce((s, m) => s + m.seconds, 0) / marks.length
     : 0;
-  const sum = `${card.a} ${card.op} ${card.b}`;
+  const sum = `${card.left} ${card.op} ${card.right}`;
 
   return (
     <main className="dashboard flash-page">
       <div className="eyebrow">FLASHCARDS</div>
       <h1>Quick-fire mental maths.</h1>
       <p>
-        Two-number addition and subtraction. Work it out in your head, then tap
-        the card to check your answer.
+        Addition, subtraction and clean percentages (10%, 20%, 25%, 50%, 75%).
+        Work it out in your head, then tap the card to check your answer.
       </p>
 
       <div className="flash-controls">
@@ -146,12 +148,12 @@ export function Flashcards() {
           <div className="flip-inner">
             <div className="flip-face front">
               <span className="flip-tag">
-                {card.op === "+" ? "ADDITION" : "SUBTRACTION"}
+                {tags[card.kind]}
               </span>
-              <div className="flip-sum">
-                {card.a}
+              <div className={"flip-sum " + card.kind}>
+                {card.left}
                 <span className="op">{card.op}</span>
-                {card.b}
+                {card.right}
               </div>
               <div className="flip-q">= ?</div>
               <small className="flip-hint">
@@ -168,18 +170,14 @@ export function Flashcards() {
                 </small>
               )}
               <div className="flip-methods">
-                <div>
-                  <b>Round and adjust</b>
-                  {card.round.map((l) => (
-                    <p key={l}>{l}</p>
-                  ))}
-                </div>
-                <div>
-                  <b>Split tens and units</b>
-                  {card.split.map((l) => (
-                    <p key={l}>{l}</p>
-                  ))}
-                </div>
+                {card.methods.map((m) => (
+                  <div key={m.title}>
+                    <b>{m.title}</b>
+                    {m.lines.map((l) => (
+                      <p key={l}>{l}</p>
+                    ))}
+                  </div>
+                ))}
               </div>
             </div>
           </div>

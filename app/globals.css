@@ -2268,3 +2268,17 @@ kbd {
     animation: none;
   }
 }
+.flip-sum.pct {
+  font-size: clamp(40px, 11vw, 64px);
+  gap: 14px;
+}
+.flip-sum.pct .op {
+  font-size: 0.45em;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+@media (max-width: 760px) {
+  .flash-controls .guide-tabs button {
+    flex: 1 1 45%;
+  }
+}

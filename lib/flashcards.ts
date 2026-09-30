@@ -1,37 +1,123 @@
-export type FlashOp = "+" | "−";
-export type FlashMode = "mixed" | "add" | "sub";
+export type FlashKind = "add" | "sub" | "pct";
+export type FlashMode = "mixed" | FlashKind;
+export type Method = { title: string; lines: string[] };
 export type FlashCard = {
   id: string;
-  a: number;
-  b: number;
-  op: FlashOp;
+  kind: FlashKind;
+  /** Front of the card: left, operator, right, e.g. "25%", "of", "48". */
+  left: string;
+  op: string;
+  right: string;
   answer: number;
-  /** Round-and-adjust method, one line per step. */
-  round: string[];
-  /** Split tens and units method, one line per step. */
-  split: string[];
+  methods: Method[];
 };
 
 const int = (lo: number, hi: number) =>
   Math.floor(Math.random() * (hi - lo + 1)) + lo;
+const pick = <T,>(xs: T[]) => xs[int(0, xs.length - 1)];
 let serial = 0;
 
-/** Two-digit addition or subtraction, matching the ACT number fluency range. */
+export const PERCENTS = [10, 20, 25, 50, 75] as const;
+export type Percent = (typeof PERCENTS)[number];
+
 export function makeFlashCard(mode: FlashMode = "mixed"): FlashCard {
-  const op: FlashOp =
-    mode === "add" ? "+" : mode === "sub" ? "−" : Math.random() < 0.5 ? "+" : "−";
-  let a: number, b: number;
-  if (op === "+") {
-    a = int(11, 99);
-    b = int(11, 99);
-  } else {
-    a = int(30, 99);
-    b = int(11, a - 1);
+  const kind: FlashKind = mode === "mixed" ? pick(["add", "sub", "pct"]) : mode;
+  const id = `f-${++serial}`;
+  if (kind === "pct") {
+    const p = pick([...PERCENTS]);
+    // Bases are chosen so every step gives a whole number.
+    const base =
+      p === 10 || p === 20
+        ? int(2, 50) * 10 // e.g. 190, 380
+        : p === 50
+          ? int(6, 150) * 2 // e.g. 64, 186
+          : int(3, 100) * 4; // 25% and 75%, e.g. 48, 240
+    return { id, ...explainPercent(p, base) };
   }
-  return { id: `f-${++serial}`, ...explain(a, b, op) };
+  if (kind === "add") return { id, ...explain(int(11, 99), int(11, 99), "+") };
+  const a = int(30, 99);
+  return { id, ...explain(a, int(11, a - 1), "−") };
 }
 
-export function explain(a: number, b: number, op: FlashOp) {
+export function explainPercent(p: Percent, base: number) {
+  const answer = (base * p) / 100;
+  const half = base / 2;
+  const quarter = base / 4;
+  const tenth = base / 10;
+  let methods: Method[];
+  if (p === 10)
+    methods = [
+      { title: "Divide by 10", lines: [`${base} ÷ 10 = ${answer}`] },
+      {
+        title: "Shift the digits",
+        lines: [
+          `Move every digit one place right: ${base} becomes ${answer}`,
+          `Check: ${answer} × 10 = ${base}`,
+        ],
+      },
+    ];
+  else if (p === 20)
+    methods = [
+      {
+        title: "10%, then double",
+        lines: [`10%: ${base} ÷ 10 = ${tenth}`, `Double: ${tenth} × 2 = ${answer}`],
+      },
+      { title: "Divide by 5", lines: [`20% is one fifth: ${base} ÷ 5 = ${answer}`] },
+    ];
+  else if (p === 25)
+    methods = [
+      {
+        title: "Half, then half again",
+        lines: [`Half: ${base} ÷ 2 = ${half}`, `Half again: ${half} ÷ 2 = ${answer}`],
+      },
+      { title: "Divide by 4", lines: [`25% is one quarter: ${base} ÷ 4 = ${answer}`] },
+    ];
+  else if (p === 50) {
+    const units = base % 10;
+    const tens = base - units;
+    methods = [
+      { title: "Halve it", lines: [`50% is one half: ${base} ÷ 2 = ${answer}`] },
+      {
+        title: "Split, then halve",
+        lines:
+          units === 0
+            ? [`${base} ÷ 2 = ${answer}`]
+            : [
+                `Halve the tens: ${tens} ÷ 2 = ${tens / 2}`,
+                `Halve the units: ${units} ÷ 2 = ${units / 2}`,
+                `Add: ${tens / 2} + ${units / 2} = ${answer}`,
+              ],
+      },
+    ];
+  } else
+    methods = [
+      {
+        title: "50% + 25%",
+        lines: [
+          `50%: ${base} ÷ 2 = ${half}`,
+          `25%: ${half} ÷ 2 = ${quarter}`,
+          `Add: ${half} + ${quarter} = ${answer}`,
+        ],
+      },
+      {
+        title: "Take off a quarter",
+        lines: [
+          `25%: ${base} ÷ 4 = ${quarter}`,
+          `100% − 25%: ${base} − ${quarter} = ${answer}`,
+        ],
+      },
+    ];
+  return {
+    kind: "pct" as const,
+    left: `${p}%`,
+    op: "of",
+    right: String(base),
+    answer,
+    methods,
+  };
+}
+
+export function explain(a: number, b: number, op: "+" | "−") {
   const answer = op === "+" ? a + b : a - b;
   const bt = Math.floor(b / 10) * 10;
   const bu = b % 10;
@@ -78,5 +164,15 @@ export function explain(a: number, b: number, op: FlashOp) {
             `Take off the units: ${a - bt} − ${bu} = ${answer}`,
           ];
   }
-  return { a, b, op, answer, round, split };
+  return {
+    kind: (op === "+" ? "add" : "sub") as FlashKind,
+    left: String(a),
+    op,
+    right: String(b),
+    answer,
+    methods: [
+      { title: "Round and adjust", lines: round },
+      { title: "Split tens and units", lines: split },
+    ],
+  };
 }
