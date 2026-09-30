@@ -140,6 +140,9 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
   const [session, dispatch] = useReducer(sessionReducer, null);
   const saved = useRef("");
   const audio = useRef<AudioContext | null>(null);
+  // Hydrate from localStorage after mount. The page is statically prerendered,
+  // so reading storage during render would cause a hydration mismatch.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem("act-training-v1");
@@ -188,6 +191,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
         setStorageAvailable(false);
       }
   }, [settings, history, loaded]);
+  /* eslint-enable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (session?.stage === "done" && saved.current !== session.id) {
       saved.current = session.id;

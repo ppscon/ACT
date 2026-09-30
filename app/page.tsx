@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import {
   Shield,
   Brain,
@@ -20,9 +20,8 @@ import {
   TrainingProvider,
   useTraining,
   accuracy,
-  type Settings,
 } from "../lib/training-context";
-import { categories, names } from "../lib/questions";
+import { names } from "../lib/questions";
 import { Arena } from "../components/arena";
 import { Results, Performance } from "../components/results";
 const modules = [
@@ -378,128 +377,12 @@ function Help({ onStart }: { onStart: () => void }) {
     </main>
   );
 }
-type Tool = {
-  name: string;
-  description: string;
-  inputSchema: object;
-  execute: (input: unknown) => unknown;
-  annotations: { readOnlyHint: boolean };
-};
 function App() {
   const [tab, setTab] = useState<"training" | "performance" | "help">(
     "training",
   );
-  const { settings, update, session, dispatch, history, beep } = useTraining();
+  const { settings, update, session, dispatch, beep } = useTraining();
   const active = session && session.stage !== "done";
-  const current = useRef({ settings, session, history, dispatch, setTab });
-  current.current = { settings, session, history, dispatch, setTab };
-  const pending = useRef<null | ((value: unknown) => void)>(null);
-  useEffect(() => {
-    if (session && pending.current) {
-      pending.current({
-        sessionId: session.id,
-        mode: session.settings.mode,
-        selection: session.settings.selection,
-        stage: session.stage,
-      });
-      pending.current = null;
-    }
-  }, [session]);
-  useEffect(() => {
-    const context = (
-      document as Document & {
-        modelContext?: {
-          registerTool: (
-            tool: Tool,
-            options: { signal: AbortSignal },
-          ) => void | Promise<void>;
-        };
-      }
-    ).modelContext;
-    if (!context?.registerTool) return;
-    const lifecycle = new AbortController();
-    const tools: Tool[] = [
-      {
-        name: "get_training_progress",
-        description:
-          "Read saved session statistics and current training stage. Does not reveal active question answers.",
-        inputSchema: {
-          type: "object",
-          properties: {},
-          additionalProperties: false,
-        },
-        annotations: { readOnlyHint: true },
-        execute: () => {
-          const c = current.current;
-          return {
-            sessions: c.history.length,
-            latestAccuracy: c.history[0]
-              ? accuracy(c.history[0].responses)
-              : null,
-            activeSession: c.session
-              ? {
-                  stage: c.session.stage,
-                  index: c.session.index,
-                  mode: c.session.settings.mode,
-                }
-              : null,
-          };
-        },
-      },
-      {
-        name: "start_training_session",
-        description:
-          "Start a new timed exam or endless practice drill in the visible interface. Refuses to replace an active session.",
-        inputSchema: {
-          type: "object",
-          properties: {
-            mode: { type: "string", enum: ["exam", "practice"] },
-            selection: { type: "string", enum: ["mixed", ...categories] },
-          },
-          required: ["mode", "selection"],
-          additionalProperties: false,
-        },
-        annotations: { readOnlyHint: false },
-        execute: (input: unknown) => {
-          if (!input || typeof input !== "object")
-            throw Error("Expected mode and selection");
-          const d = input as Record<string, unknown>;
-          if (
-            Object.keys(d).some((k) => !["mode", "selection"].includes(k)) ||
-            !["exam", "practice"].includes(String(d.mode)) ||
-            !["mixed", ...categories].includes(String(d.selection))
-          )
-            throw Error("Invalid mode or selection");
-          const c = current.current;
-          if (c.session && c.session.stage !== "done")
-            throw Error("A session is already active");
-          return new Promise((resolve) => {
-            pending.current = resolve;
-            c.setTab("training");
-            c.dispatch({
-              type: "start",
-              settings: {
-                ...c.settings,
-                mode: d.mode,
-                selection: d.selection,
-              } as Settings,
-            });
-          });
-        },
-      },
-    ];
-    tools.forEach((t) => {
-      try {
-        void Promise.resolve(
-          context.registerTool(t, { signal: lifecycle.signal }),
-        ).catch(() => {});
-      } catch {}
-    });
-    return () => {
-      lifecycle.abort();
-      pending.current = null;
-    };
-  }, []);
   const home = () => {
     dispatch({ type: "reset" });
     setTab("training");

@@ -1,6 +1,6 @@
 import { build } from "esbuild";
 import { mkdir } from "node:fs/promises";
-await mkdir(".sites-runtime", { recursive: true });
+await mkdir(".cache", { recursive: true });
 await build({
   stdin: {
     contents: `
@@ -15,6 +15,7 @@ for(const category of categories)for(let i=0;i<1000;i++){
  if(category==='spatial'){const black=q.stimulus[0].includes('ABOVE'),left=q.stimulus[1].includes('ABOVE');const valid=q.arrows.filter(c=>c.blackTop===black&&c.leftTop===left);assert.equal(valid.length,1);assert.deepEqual(q.arrows[q.correct],valid[0])}
  if(category==='reasoning'){const links=q.stimulus.map(s=>{const m=s.match(/^(.+) is (\\w+) than (.+)\\.$/);assert(m);return ['faster','newer','heavier','taller'].includes(m[2])?[m[1],m[3]]:[m[3],m[1]]});let ordered=[q.choices.find(v=>!links.some(e=>e[1]===v))];while(ordered.length<q.choices.length){const next=links.find(e=>e[0]===ordered.at(-1));assert(next);ordered.push(next[1])}const answer=q.prompt.includes('middle')?ordered[1]:/slowest|oldest|lightest|shortest/.test(q.prompt)?ordered.at(-1):ordered[0];assert.equal(q.choices[q.correct],answer)}
 }
+const ranks=new Set();for(let i=0;i<2000;i++){const q=generateQuestion('numbers');if(q.prompt.includes('Expression B'))continue;const sorted=[...q.choices].map(Number).sort((x,y)=>x-y);ranks.add(sorted.indexOf(+q.choices[q.correct]))}assert.equal(ranks.size,4,'numeric answer must not sit in a fixed sorted position');
 const block=makeBlock('mixed');assert.equal(block.length,20);categories.forEach(c=>assert.equal(block.filter(q=>q.category===c).length,5));
 const settings={selection:'mixed',mode:'exam',memorise:0,answer:6,sound:false,feedback:true};
 let s=sessionReducer(null,{type:'start',settings});assert.equal(s.stage,'stimulus');assert.equal(sessionReducer(s,{type:'answer',choice:0,latency:1}),s);
@@ -29,7 +30,7 @@ console.log('Verified 4,000 procedural questions, unique spatial solutions, bala
   bundle: true,
   platform: "node",
   format: "esm",
-  outfile: ".sites-runtime/verify-engine.mjs",
+  outfile: ".cache/verify-engine.mjs",
   external: ["react"],
 });
-await import(new URL("../.sites-runtime/verify-engine.mjs", import.meta.url));
+await import(new URL("../.cache/verify-engine.mjs", import.meta.url));

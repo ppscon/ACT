@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Brain, Timer, Check, X, LogOut, Shield, Keyboard } from "lucide-react";
 import { useTraining } from "../lib/training-context";
 import { names, type ArrowCard } from "../lib/questions";
@@ -41,10 +41,13 @@ export function Arena() {
       : s.settings.answer;
   const [remaining, setRemaining] = useState(duration);
   const [exit, setExit] = useState(false);
-  const started = useRef(performance.now());
-  const deadline = useRef(performance.now() + duration * 1000);
+  // Set by the timer effect at the start of each stage.
+  const started = useRef(0);
+  const deadline = useRef(0);
   const latest = useRef({ dispatch, beep, duration });
-  latest.current = { dispatch, beep, duration };
+  useLayoutEffect(() => {
+    latest.current = { dispatch, beep, duration };
+  });
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     heading.current?.focus();

@@ -35,19 +35,17 @@ export function shuffle<T>(items: T[]): T[] {
   return a;
 }
 let serial = 0;
+// Distractors are drawn from both sides of the answer so its rank among the
+// sorted options varies. Previously the answer was always the second-lowest
+// option, which made the module guessable without doing the arithmetic.
 function numericChoices(answer: number) {
-  return shuffle(
-    Array.from(
-      new Set([
-        answer,
-        answer + int(1, 6),
-        Math.max(0, answer - int(1, 6)),
-        answer + int(7, 13),
-      ]),
-    ),
-  )
-    .slice(0, 4)
-    .map(String);
+  const offsets = shuffle([
+    -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8,
+    9, 10, 11, 12,
+  ]).filter((o) => answer + o > 0);
+  return shuffle([answer, ...offsets.slice(0, 3).map((o) => answer + o)]).map(
+    String,
+  );
 }
 function numeric(
   q: Omit<Question, "id" | "category" | "choices" | "correct">,
