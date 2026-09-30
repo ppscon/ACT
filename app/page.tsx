@@ -26,6 +26,7 @@ import { names } from "../lib/questions";
 import { Arena } from "../components/arena";
 import { Results, Performance } from "../components/results";
 import { Guide } from "../components/guide";
+import { Flashcards } from "../components/flashcards";
 const modules = [
   {
     id: "reasoning" as const,
@@ -63,9 +64,11 @@ const modules = [
 function Dashboard({
   showHelp,
   showGuide,
+  showCards,
 }: {
   showHelp: () => void;
   showGuide: () => void;
+  showCards: () => void;
 }) {
   const { settings, update, dispatch, beep, history, storageAvailable } =
     useTraining();
@@ -288,6 +291,10 @@ function Dashboard({
           </div>
         </div>
         <div className="strip-actions">
+          <button onClick={showCards}>
+            <Calculator size={17} />
+            Maths flashcards
+          </button>
           <button onClick={showGuide}>
             <Lightbulb size={17} />
             Tips & examples
@@ -577,7 +584,9 @@ function Help({
   );
 }
 function App() {
-  const [tab, setTab] = useState<"training" | "guide" | "performance" | "help">(
+  const [tab, setTab] = useState<
+    "training" | "flashcards" | "guide" | "performance" | "help"
+  >(
     "training",
   );
   const { settings, update, session, dispatch, beep } = useTraining();
@@ -601,7 +610,7 @@ function App() {
           <span className="session-header">FOCUS ON YOUR NEXT ANSWER</span>
         ) : (
           <nav>
-            {(["training", "guide", "performance", "help"] as const).map((t) => (
+            {(["training", "flashcards", "guide", "performance", "help"] as const).map((t) => (
               <button
                 key={t}
                 className={tab === t ? "nav-active" : ""}
@@ -610,14 +619,28 @@ function App() {
                   setTab(t);
                 }}
               >
-                {
+                <span className="long">
                   {
-                    training: "Training",
-                    guide: "Tips & examples",
-                    performance: "Performance",
-                    help: "How it works",
-                  }[t]
-                }
+                    {
+                      training: "Training",
+                      flashcards: "Flashcards",
+                      guide: "Tips & examples",
+                      performance: "Performance",
+                      help: "How it works",
+                    }[t]
+                  }
+                </span>
+                <span className="short">
+                  {
+                    {
+                      training: "Train",
+                      flashcards: "Cards",
+                      guide: "Tips",
+                      performance: "Stats",
+                      help: "About",
+                    }[t]
+                  }
+                </span>
               </button>
             ))}
           </nav>
@@ -648,10 +671,13 @@ function App() {
         />
       ) : tab === "guide" ? (
         <Guide />
+      ) : tab === "flashcards" ? (
+        <Flashcards />
       ) : (
         <Dashboard
           showHelp={() => setTab("help")}
           showGuide={() => setTab("guide")}
+          showCards={() => setTab("flashcards")}
         />
       )}
     </>

@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import {generateQuestion,makeBlock,categories} from './lib/questions';
 import {sessionReducer,accuracy,average} from './lib/training-context';
 import {guides} from './lib/guide';
+import {makeFlashCard} from './lib/flashcards';
 const calculate = s => {const percent=s.match(/(\\d+)% of (\\d+)/);if(percent)return +percent[1]*+percent[2]/100;const expr=s.match(/(\\d+) ([+−]) (\\d+)/);assert(expr,s);return expr[2]==='+'?+expr[1]+ +expr[3]:+expr[1]- +expr[3]};
 for(const category of categories)for(let i=0;i<1000;i++){
  const q=generateQuestion(category);assert.equal(q.category,category);assert(q.correct>=0&&q.correct<q.choices.length);assert.equal(new Set(q.choices).size,q.choices.length);
@@ -35,6 +36,9 @@ for(const g of guides){const all=[...g.examples,{...g.worked,question:g.worked.q
   assert.equal(ex.answer,want,q+' '+ex.stimulus.join(' '))}
 }}
 console.log('Verified '+guideChecks+' guide examples and answer keys.');
+for(let i=0;i<5000;i++){const c=makeFlashCard(['mixed','add','sub'][i%3]);assert(c.a>=10&&c.a<=99&&c.b>=10&&c.b<=99,'two-digit');assert.equal(c.answer,c.op==='+'?c.a+c.b:c.a-c.b);assert(c.answer>0);
+ for(const lines of [c.round,c.split]){assert(lines.at(-1).endsWith('= '+c.answer),lines.join(' | '));for(const l of lines){const m=l.match(/(\\d+) ([+−]) (\\d+) = (\\d+)/);assert(m,l);assert.equal(+m[4],m[2]==='+'?+m[1]+ +m[3]:+m[1]-+m[3],l)}}}
+console.log('Verified 5,000 flashcards and every working step.');
 console.log('Verified 4,000 procedural questions, unique spatial solutions, balanced blocks, timeouts, double-answer guards, feedback and score calculations.');
 `,
     resolveDir: process.cwd(),
