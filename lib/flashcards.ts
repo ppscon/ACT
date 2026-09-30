@@ -17,22 +17,14 @@ const int = (lo: number, hi: number) =>
 const pick = <T,>(xs: T[]) => xs[int(0, xs.length - 1)];
 let serial = 0;
 
-export const PERCENTS = [10, 20, 25, 50, 75] as const;
-export type Percent = (typeof PERCENTS)[number];
+import { PERCENTS, percentBase, type Percent } from "./questions";
 
 export function makeFlashCard(mode: FlashMode = "mixed"): FlashCard {
   const kind: FlashKind = mode === "mixed" ? pick(["add", "sub", "pct"]) : mode;
   const id = `f-${++serial}`;
   if (kind === "pct") {
     const p = pick([...PERCENTS]);
-    // Bases are chosen so every step gives a whole number.
-    const base =
-      p === 10 || p === 20
-        ? int(2, 50) * 10 // e.g. 190, 380
-        : p === 50
-          ? int(6, 150) * 2 // e.g. 64, 186
-          : int(3, 100) * 4; // 25% and 75%, e.g. 48, 240
-    return { id, ...explainPercent(p, base) };
+    return { id, ...explainPercent(p, percentBase(p)) };
   }
   if (kind === "add") return { id, ...explain(int(11, 99), int(11, 99), "+") };
   const a = int(30, 99);
@@ -58,11 +50,16 @@ export function explainPercent(p: Percent, base: number) {
     ];
   else if (p === 20)
     methods = [
-      {
-        title: "10%, then double",
-        lines: [`10%: ${base} ÷ 10 = ${tenth}`, `Double: ${tenth} × 2 = ${answer}`],
-      },
       { title: "Divide by 5", lines: [`20% is one fifth: ${base} ÷ 5 = ${answer}`] },
+      base % 10 === 0
+        ? {
+            title: "10%, then double",
+            lines: [`10%: ${base} ÷ 10 = ${tenth}`, `Double: ${tenth} × 2 = ${answer}`],
+          }
+        : {
+            title: "Double, then ÷ 10",
+            lines: [`Double: ${base} × 2 = ${base * 2}`, `÷ 10: ${base * 2} ÷ 10 = ${answer}`],
+          },
     ];
   else if (p === 25)
     methods = [

@@ -64,6 +64,19 @@ function numeric(
     correct: choices.indexOf(String(answer)),
   };
 }
+export const PERCENTS = [10, 20, 25, 50, 75] as const;
+export type Percent = (typeof PERCENTS)[number];
+/**
+ * A two-digit number (10 to 99) that gives a whole-number answer for p%.
+ * 10%: multiples of 10. 20%: multiples of 5. 25% and 75%: multiples of 4.
+ * 50%: even numbers.
+ */
+export function percentBase(p: Percent): number {
+  if (p === 10) return int(2, 9) * 10;
+  if (p === 20) return int(3, 19) * 5;
+  if (p === 50) return int(6, 49) * 2;
+  return int(3, 24) * 4;
+}
 export function generateQuestion(category: Category): Question {
   const id = `q-${++serial}`;
   if (category === "reasoning") {
@@ -115,8 +128,8 @@ export function generateQuestion(category: Category): Question {
   if (category === "numbers") {
     const type = int(0, 2);
     if (type === 0) {
-      const percentage = shuffle([10, 20, 25, 50, 75])[0];
-      const base = int(2, 25) * 20;
+      const percentage = shuffle([...PERCENTS])[0];
+      const base = percentBase(percentage);
       const answer = (base * percentage) / 100;
       return numeric(
         {
@@ -129,9 +142,13 @@ export function generateQuestion(category: Category): Question {
       );
     }
     if (type === 1) {
-      const base = int(2, 20) * 20;
-      const percentage = shuffle([10, 20, 25, 50, 75])[0];
-      const a = (base * percentage) / 100;
+      // Keep A at 6 or more so expression B is a sensible two-number sum.
+      let percentage: Percent, base: number, a: number;
+      do {
+        percentage = shuffle([...PERCENTS])[0];
+        base = percentBase(percentage);
+        a = (base * percentage) / 100;
+      } while (a < 6);
       const delta = shuffle([-int(1, Math.min(8, a - 2)), 0, int(1, 8)])[0];
       const b = a + delta;
       const add = int(1, b - 1);

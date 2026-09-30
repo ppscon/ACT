@@ -7,7 +7,7 @@ await build({
 import assert from 'node:assert/strict';
 import {generateQuestion,makeBlock,categories} from './lib/questions';
 import {sessionReducer,accuracy,average} from './lib/training-context';
-import {guides} from './lib/guide';
+import {guides,guideFor} from './lib/guide';
 import {makeFlashCard} from './lib/flashcards';
 const calculate = s => {const percent=s.match(/(\\d+)% of (\\d+)/);if(percent)return +percent[1]*+percent[2]/100;const expr=s.match(/(\\d+) ([+−]) (\\d+)/);assert(expr,s);return expr[2]==='+'?+expr[1]+ +expr[3]:+expr[1]- +expr[3]};
 for(const category of categories)for(let i=0;i<1000;i++){
@@ -17,6 +17,8 @@ for(const category of categories)for(let i=0;i<1000;i++){
  if(category==='spatial'){const black=q.stimulus[0].includes('ABOVE'),left=q.stimulus[1].includes('ABOVE');const valid=q.arrows.filter(c=>c.blackTop===black&&c.leftTop===left);assert.equal(valid.length,1);assert.deepEqual(q.arrows[q.correct],valid[0])}
  if(category==='reasoning'){const links=q.stimulus.map(s=>{const m=s.match(/^(.+) is (\\w+) than (.+)\\.$/);assert(m);return ['faster','newer','heavier','taller'].includes(m[2])?[m[1],m[3]]:[m[3],m[1]]});let ordered=[q.choices.find(v=>!links.some(e=>e[1]===v))];while(ordered.length<q.choices.length){const next=links.find(e=>e[0]===ordered.at(-1));assert(next);ordered.push(next[1])}const answer=q.prompt.includes('middle')?ordered[1]:/slowest|oldest|lightest|shortest/.test(q.prompt)?ordered.at(-1):ordered[0];assert.equal(q.choices[q.correct],answer)}
 }
+for(let i=0;i<4000;i++){const q=generateQuestion('numbers');const m=q.stimulus[0].match(/(\\d+)% of (\\d+)/);if(!m)continue;const b=+m[2];assert(b>=10&&b<=99,'two-digit base: '+q.stimulus[0]);assert(Number.isInteger(+m[1]*b/100),q.stimulus[0]);if(q.prompt.includes('Expression B')){const e=q.prompt.match(/(\\d+) \\+ (\\d+)/);assert(+e[1]>=1&&+e[2]>=1,q.prompt)}}
+for(const ex of guideFor('numbers').examples.concat([guideFor('numbers').worked])){const m=ex.stimulus[0].match(/(\\d+)% of (\\d+)/);if(m)assert(+m[2]<=99,'guide two-digit: '+ex.stimulus[0])}
 const ranks=new Set();for(let i=0;i<2000;i++){const q=generateQuestion('numbers');if(q.prompt.includes('Expression B'))continue;const sorted=[...q.choices].map(Number).sort((x,y)=>x-y);ranks.add(sorted.indexOf(+q.choices[q.correct]))}assert.equal(ranks.size,4,'numeric answer must not sit in a fixed sorted position');
 const block=makeBlock('mixed');assert.equal(block.length,20);categories.forEach(c=>assert.equal(block.filter(q=>q.category===c).length,5));
 const settings={selection:'mixed',mode:'exam',memorise:0,answer:6,sound:false,feedback:true};
@@ -39,7 +41,7 @@ console.log('Verified '+guideChecks+' guide examples and answer keys.');
 const evalLine=l=>{let n=0;for(const m of l.matchAll(/(\\d+)% of (\\d+) = (\\d+)/g)){assert.equal(+m[1]*+m[2]/100,+m[3],l);n++}for(const m of l.matchAll(/(\\d+) ([+−×÷]) (\\d+) = (\\d+)/g)){const[a,op,b,r]=[+m[1],m[2],+m[3],+m[4]];assert.equal(op==='+'?a+b:op==='−'?a-b:op==='×'?a*b:a/b,r,l);n++}return n};
 const kinds={add:0,sub:0,pct:0},pcts=new Set();
 for(let i=0;i<9000;i++){const c=makeFlashCard(['mixed','add','sub','pct'][i%4]);kinds[c.kind]++;assert(Number.isInteger(c.answer)&&c.answer>0,JSON.stringify(c));
- if(c.kind==='pct'){const p=parseInt(c.left);pcts.add(p);assert([10,20,25,50,75].includes(p));assert.equal(c.op,'of');assert.equal(c.answer,p*+c.right/100)}
+ if(c.kind==='pct'){const p=parseInt(c.left);assert(+c.right>=10&&+c.right<=99,'two-digit base '+c.right);pcts.add(p);assert([10,20,25,50,75].includes(p));assert.equal(c.op,'of');assert.equal(c.answer,p*+c.right/100)}
  else{const a=+c.left,b=+c.right;assert(a>=10&&a<=99&&b>=10&&b<=99,'two-digit');assert.equal(c.answer,c.kind==='add'?a+b:a-b)}
  assert.equal(c.methods.length,2);for(const m of c.methods){assert(m.lines.at(-1).includes(String(c.answer)),m.title+': '+m.lines.join(' | '));let steps=0;for(const l of m.lines){assert(!/\\d\\.\\d/.test(l),'no decimals: '+l);steps+=evalLine(l)}assert(steps>0||m.title==='Shift the digits',m.title)}}
 assert(kinds.add&&kinds.sub&&kinds.pct);assert.equal(pcts.size,5);

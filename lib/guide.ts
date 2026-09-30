@@ -206,25 +206,25 @@ export const guides: Guide[] = [
     screenTwo:
       "The sum disappears. Pick the answer from four close options, or (in comparison questions) decide whether a new expression B is larger, smaller or equal to A.",
     worked: {
-      stimulus: ["75% of 240"],
+      stimulus: ["75% of 84"],
       mappingIntro:
         "Never try to hold the sum and work it out later. Solve it on Screen 1 using simple building blocks:",
       steps: [
-        { text: "Half of 240", code: "50% = 120" },
-        { text: "Half again", code: "25% = 60" },
-        { text: "Add the two", code: "75% = 120 + 60 = 180" },
+        { text: "Half of 84", code: "50% = 42" },
+        { text: "Half again", code: "25% = 21" },
+        { text: "Add the two", code: "75% = 42 + 21 = 63" },
       ],
-      chain: "Hold one number: 180",
+      chain: "Hold one number: 63",
       question: "What was the answer?",
-      options: ["174", "180", "186", "190"],
-      answer: "180",
+      options: ["57", "63", "66", "73"],
+      answer: "63",
       why: "The options are deliberately close, so an estimate is not enough. Lock in the exact figure before Screen 2 appears.",
     },
     techniques: [
       {
         title: "Percentages from building blocks",
-        text: "10% means divide by 10. 20% is double 10%. 50% is half, 25% is half of half, 75% is 50% + 25%.",
-        example: "20% of 380: 10% is 38, doubled is 76.",
+        text: "10% means divide by 10. 20% is double 10% (or double the number, then divide by 10). 50% is half, 25% is half of half, 75% is 50% + 25%.",
+        example: "20% of 70: 10% is 7, doubled is 14. 20% of 45: double to 90, then 90 ÷ 10 = 9.",
       },
       {
         title: "Round and adjust for addition",
@@ -253,7 +253,7 @@ export const guides: Guide[] = [
       },
       {
         title: "Direction in comparisons",
-        text: "\"Is B larger than A?\" is about B. If A = 70 and B = 67, the answer is Smaller.",
+        text: "\"Is B larger than A?\" is about B. If A = 37 and B = 35, the answer is Smaller.",
       },
       {
         title: "Equal is a real answer",
@@ -266,18 +266,18 @@ export const guides: Guide[] = [
     ],
     examples: [
       {
-        stimulus: ["25% of 160"],
+        stimulus: ["25% of 68"],
         question: "What was the answer?",
-        options: ["36", "40", "44", "32"],
-        answer: "40",
-        working: "25% is a quarter: 160 ÷ 4 = 40.",
+        options: ["15", "17", "19", "21"],
+        answer: "17",
+        working: "25% is a quarter: half of 68 is 34, half again is 17.",
       },
       {
-        stimulus: ["20% of 380"],
+        stimulus: ["20% of 45"],
         question: "What was the answer?",
-        options: ["68", "72", "76", "86"],
-        answer: "76",
-        working: "10% is 38. Double it: 76.",
+        options: ["7", "9", "11", "8"],
+        answer: "9",
+        working: "45 is not a multiple of 10, so double it and divide by 10: 45 × 2 = 90, 90 ÷ 10 = 9. (Or 45 ÷ 5 = 9.)",
       },
       {
         stimulus: ["67 + 48"],
@@ -301,25 +301,25 @@ export const guides: Guide[] = [
         working: "50% is 40, 25% is 20. Together: 60.",
       },
       {
-        stimulus: ["Expression A: 50% of 140"],
-        question: "Expression B: 38 + 29. Is B larger, smaller or equal to A?",
+        stimulus: ["Expression A: 50% of 74"],
+        question: "Expression B: 18 + 17. Is B larger, smaller or equal to A?",
         options: ["Larger", "Smaller", "Equal"],
         answer: "Smaller",
-        working: "A = 70. B = 38 + 29 = 67. 67 is smaller than 70.",
+        working: "A = 37. B = 18 + 17 = 35. 35 is smaller than 37.",
       },
       {
-        stimulus: ["Expression A: 10% of 460"],
-        question: "Expression B: 19 + 27. Is B larger, smaller or equal to A?",
+        stimulus: ["Expression A: 10% of 90"],
+        question: "Expression B: 4 + 5. Is B larger, smaller or equal to A?",
         options: ["Larger", "Smaller", "Equal"],
         answer: "Equal",
-        working: "A = 46. B = 19 + 27 = 46. They are equal.",
+        working: "A = 9. B = 4 + 5 = 9. They are equal.",
       },
       {
-        stimulus: ["Expression A: 25% of 200"],
-        question: "Expression B: 23 + 31. Is B larger, smaller or equal to A?",
+        stimulus: ["Expression A: 25% of 96"],
+        question: "Expression B: 13 + 14. Is B larger, smaller or equal to A?",
         options: ["Larger", "Smaller", "Equal"],
         answer: "Larger",
-        working: "A = 50. B = 54. B is larger.",
+        working: "A = 24 (half of 96 is 48, half again is 24). B = 27. B is larger.",
       },
     ],
     quickTip:
