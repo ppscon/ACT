@@ -15,6 +15,7 @@ import {
   Layers,
   Dumbbell,
   Settings2,
+  Lightbulb,
 } from "lucide-react";
 import {
   TrainingProvider,
@@ -24,6 +25,7 @@ import {
 import { names } from "../lib/questions";
 import { Arena } from "../components/arena";
 import { Results, Performance } from "../components/results";
+import { Guide } from "../components/guide";
 const modules = [
   {
     id: "reasoning" as const,
@@ -58,7 +60,13 @@ const modules = [
     example: "BLACK ABOVE WHITE",
   },
 ];
-function Dashboard({ showHelp }: { showHelp: () => void }) {
+function Dashboard({
+  showHelp,
+  showGuide,
+}: {
+  showHelp: () => void;
+  showGuide: () => void;
+}) {
   const { settings, update, dispatch, beep, history, storageAvailable } =
     useTraining();
   const { selection: selected, mode } = settings;
@@ -279,10 +287,16 @@ function Dashboard({ showHelp }: { showHelp: () => void }) {
             </p>
           </div>
         </div>
-        <button onClick={showHelp}>
-          How the test works
-          <ChevronRight size={17} />
-        </button>
+        <div className="strip-actions">
+          <button onClick={showGuide}>
+            <Lightbulb size={17} />
+            Tips & examples
+          </button>
+          <button onClick={showHelp}>
+            How the test works
+            <ChevronRight size={17} />
+          </button>
+        </div>
       </section>
       <footer>
         <span>Independent preparation. No British Army affiliation.</span>
@@ -291,7 +305,13 @@ function Dashboard({ showHelp }: { showHelp: () => void }) {
     </main>
   );
 }
-function Help({ onStart }: { onStart: () => void }) {
+function Help({
+  onStart,
+  onGuide,
+}: {
+  onStart: () => void;
+  onGuide: () => void;
+}) {
   return (
     <main className="dashboard help-page">
       <div className="eyebrow">BEFORE YOU BEGIN</div>
@@ -371,14 +391,19 @@ function Help({ onStart }: { onStart: () => void }) {
           or eligibility for REME, Royal Engineers, or Royal Signals.
         </p>
       </section>
-      <button className="primary" onClick={onStart}>
-        Choose your training
-      </button>
+      <div className="result-actions">
+        <button className="primary" onClick={onStart}>
+          Choose your training
+        </button>
+        <button className="secondary" onClick={onGuide}>
+          Tips & worked examples
+        </button>
+      </div>
     </main>
   );
 }
 function App() {
-  const [tab, setTab] = useState<"training" | "performance" | "help">(
+  const [tab, setTab] = useState<"training" | "guide" | "performance" | "help">(
     "training",
   );
   const { settings, update, session, dispatch, beep } = useTraining();
@@ -402,7 +427,7 @@ function App() {
           <span className="session-header">FOCUS ON YOUR NEXT ANSWER</span>
         ) : (
           <nav>
-            {(["training", "performance", "help"] as const).map((t) => (
+            {(["training", "guide", "performance", "help"] as const).map((t) => (
               <button
                 key={t}
                 className={tab === t ? "nav-active" : ""}
@@ -411,11 +436,14 @@ function App() {
                   setTab(t);
                 }}
               >
-                {t === "help"
-                  ? "How it works"
-                  : t === "training"
-                    ? "Training"
-                    : "Performance"}
+                {
+                  {
+                    training: "Training",
+                    guide: "Tips & examples",
+                    performance: "Performance",
+                    help: "How it works",
+                  }[t]
+                }
               </button>
             ))}
           </nav>
@@ -440,9 +468,17 @@ function App() {
       ) : tab === "performance" ? (
         <Performance />
       ) : tab === "help" ? (
-        <Help onStart={() => setTab("training")} />
+        <Help
+          onStart={() => setTab("training")}
+          onGuide={() => setTab("guide")}
+        />
+      ) : tab === "guide" ? (
+        <Guide />
       ) : (
-        <Dashboard showHelp={() => setTab("help")} />
+        <Dashboard
+          showHelp={() => setTab("help")}
+          showGuide={() => setTab("guide")}
+        />
       )}
     </>
   );

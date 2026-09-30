@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Brain, Timer, Check, X, LogOut, Shield, Keyboard } from "lucide-react";
 import { useTraining } from "../lib/training-context";
 import { names, type ArrowCard } from "../lib/questions";
+import { guideFor } from "../lib/guide";
 export function ArrowPair({ card }: { card: ArrowCard }) {
   return (
     <div className="arrow-pair" aria-hidden="true">
@@ -267,6 +268,11 @@ export function Arena() {
             </div>
             <p>{q.explanation}</p>
             {q.arrows && <ArrowPair card={q.arrows[q.correct]} />}
+            {!correct && (
+              <p className="feedback-tip">
+                <b>Tip:</b> {guideFor(q.category).quickTip}
+              </p>
+            )}
             <small>
               {response?.choice === null
                 ? "No answer recorded"
