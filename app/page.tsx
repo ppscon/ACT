@@ -305,6 +305,43 @@ function Dashboard({
     </main>
   );
 }
+const subTests: {
+  name: string;
+  measures: string;
+  how: string;
+  module: string | null;
+}[] = [
+  {
+    name: "Error Detection",
+    measures: "Attention to detail and visual speed",
+    how: "Two strings of letters, digits and symbols appear. Count how many characters differ (0 to 4) before they vanish, then submit the count.",
+    module: "Error detection",
+  },
+  {
+    name: "Orientation",
+    measures: "Spatial awareness and rule-following",
+    how: "Two rules about arrows, such as \u201cBlack ABOVE White\u201d and \u201cFacing Left BELOW Facing Right\u201d. Memorise them, move on, then pick the matching diagram.",
+    module: "Spatial orientation",
+  },
+  {
+    name: "Number Fluency",
+    measures: "Mental arithmetic and memory",
+    how: "A basic sum (such as 34 + 48) appears and disappears, followed by a second. Say whether the second is larger, smaller or equal to the first.",
+    module: "Number fluency",
+  },
+  {
+    name: "Word Rules",
+    measures: "Verbal working memory and categorisation",
+    how: "Three categories are shown in order (such as Fruit, Tool, Animal), then replaced by three words. State how many words match the category in their slot.",
+    module: null,
+  },
+  {
+    name: "Deductive Reasoning",
+    measures: "Logic under pressure",
+    how: "Two statements such as \u201cThe radio is newer than the radar\u201d. They disappear, then you say which item is newest, oldest or in the middle.",
+    module: "Deductive reasoning",
+  },
+];
 function Help({
   onStart,
   onGuide,
@@ -314,8 +351,145 @@ function Help({
 }) {
   return (
     <main className="dashboard help-page">
-      <div className="eyebrow">BEFORE YOU BEGIN</div>
-      <h1>Two stages. One focused mind.</h1>
+      <div className="eyebrow">ABOUT THE TEST</div>
+      <h1>The Army Cognitive Test (ACT).</h1>
+      <p>
+        The computer-based cognitive assessment used by the British Army is the{" "}
+        <b>Army Cognitive Test (ACT)</b>, which replaced the old BARB (British
+        Army Recruit Battery) test. Yes, you can practise for it, and you
+        definitely should.
+      </p>
+
+      <div className="help-grid">
+        <section className="white-panel">
+          <span className="help-number">GTI</span>
+          <h2>Why your score matters</h2>
+          <p>
+            Your results produce a <b>General Trainability Index (GTI)</b>,
+            calculated from both accuracy and speed across all five sections.
+            Each Army role has a minimum GTI; the overall minimum to progress is
+            26.
+          </p>
+          <p>
+            For technical roles such as an electrician or electronics technician
+            in the <b>Royal Engineers or REME</b>, scoring well is critical:
+            engineering trades demand some of the highest cut-offs in the Army.
+            Exact figures change with recruitment needs, so confirm yours with
+            your recruiter.
+          </p>
+        </section>
+        <section className="white-panel">
+          <span className="help-number">45</span>
+          <h2>What the test looks like</h2>
+          <p>
+            The ACT takes about <b>45 minutes</b> and has around{" "}
+            <b>200 rapid-fire questions</b> across <b>five sub-tests</b>. It is
+            taken on a touchscreen at the assessment centre.
+          </p>
+          <p>
+            The challenge is rarely the difficulty of the material. It is the{" "}
+            <b>strict time pressure</b> and the reliance on{" "}
+            <b>short-term working memory</b>: the information disappears before
+            you answer.
+          </p>
+        </section>
+      </div>
+
+      <section className="white-panel">
+        <h2>The five sub-tests</h2>
+        <div className="act-table-wrap">
+          <table className="act-table">
+            <thead>
+              <tr>
+                <th>Sub-test</th>
+                <th>What it measures</th>
+                <th>How it works</th>
+                <th>In this trainer</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subTests.map((t) => (
+                <tr key={t.name}>
+                  <td>
+                    <b>{t.name}</b>
+                  </td>
+                  <td>{t.measures}</td>
+                  <td>{t.how}</td>
+                  <td>
+                    {t.module ? (
+                      <span className="pill ok">{t.module}</span>
+                    ) : (
+                      <span className="pill todo">Not yet covered</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="estimate-note">
+          Word Rules is not yet in this trainer; use the official Mindmill
+          practice site below for that section. Timings and question counts are
+          typical figures reported by preparation providers; the Army does not
+          publish exact details.
+        </p>
+        <div className="callout">
+          <b>Technical Selection Test (TST).</b> Candidates for technical trades
+          in the Royal Engineers, Royal Signals and REME normally also sit a
+          separate TST, covering GCSE-standard maths (including algebra and
+          trigonometry) and basic electrical and mechanical physics. Ask the
+          recruiter whether it applies to your chosen trade.
+        </div>
+      </section>
+
+      <section className="white-panel">
+        <h2>How to practise effectively</h2>
+        <ol className="practice-steps">
+          <li>
+            <b>Official Mindmill practice.</b> Mindmill delivers the real ACT
+            and runs an official practice site with all five sub-tests, which
+            you can repeat as often as you like. Use it to get used to the
+            real interface and pacing. Your recruiter may also send a link.{" "}
+            <a
+              href="https://practicequestions.mindmill.co.uk/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open the official practice site
+            </a>
+          </li>
+          <li>
+            <b>This trainer, daily.</b> Use the Tips & examples page to learn
+            the method for each module, then drill with practice sessions and
+            timed exams. Fifteen focused minutes a day beats one long session a
+            week.
+          </li>
+          <li>
+            <b>Third-party ACT simulators.</b> Paid platforms such as
+            JobTestPrep and Army-Test offer full-length simulations of all five
+            sub-tests, including Word Rules, with the same two-stage screens and
+            timers.
+          </li>
+          <li>
+            <b>Drill mental arithmetic.</b> Practise two-digit additions,
+            subtractions and percentages in your head, without paper or a
+            calculator, to build Number Fluency speed.
+          </li>
+          <li>
+            <b>Master the screen switch.</b> Many candidates lose marks by
+            rushing past the first screen before the rules or numbers are fixed
+            in their head. Practise holding two or three pieces of information
+            for five seconds before the options appear.
+          </li>
+          <li>
+            <b>Speed and accuracy both count.</b> If a question seems too hard,
+            make your best guess and move on rather than stalling.
+          </li>
+        </ol>
+      </section>
+
+      <div className="eyebrow help-divider">HOW THIS TRAINER WORKS</div>
+      <h2 className="help-subtitle">Two stages. One focused mind.</h2>
       <p>
         Practise retaining information and responding accurately under time
         pressure.

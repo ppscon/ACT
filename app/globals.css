@@ -1550,3 +1550,97 @@ kbd {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* ---------- About the ACT (How it works) ---------- */
+.help-page > p {
+  max-width: 820px;
+}
+.help-divider {
+  margin-top: 48px;
+}
+.help-subtitle {
+  font-size: 28px;
+  letter-spacing: -0.8px;
+  margin: 8px 0 6px;
+}
+.act-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.act-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.act-table th {
+  text-align: left;
+  background: #f1f5f2;
+  color: var(--green);
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 14px;
+}
+.act-table td {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+}
+.act-table td:nth-child(2) {
+  color: var(--muted);
+  width: 20%;
+}
+.act-table td:first-child {
+  width: 16%;
+  white-space: nowrap;
+}
+.pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pill.ok {
+  background: #e7f0ea;
+  color: var(--green);
+}
+.pill.todo {
+  background: #f4ede2;
+  color: #94723e;
+}
+.callout {
+  margin-top: 8px;
+  padding: 16px 18px;
+  border-left: 4px solid #c9a86b;
+  background: #faf6ee;
+  border-radius: 0 7px 7px 0;
+  font-size: 14px;
+}
+.practice-steps {
+  padding-left: 22px;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+.practice-steps li {
+  padding-left: 6px;
+}
+.practice-steps a {
+  color: var(--green);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.help-page .white-panel p + p {
+  margin-top: 12px;
+}
+.practice-steps {
+  list-style: decimal;
+}
+.practice-steps li::marker {
+  color: var(--green);
+  font-weight: 700;
+}
